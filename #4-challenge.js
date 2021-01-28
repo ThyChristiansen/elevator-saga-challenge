@@ -1,21 +1,33 @@
 {
     init: function(elevators, floors) {
-        for (let i of elevators){
-            i.on("idle", function() {
-                for (let j of floors){
-                    if(i.getPressedFloors().length > 0) {
-                        i.goToFloor(i.getPressedFloors()[0]);
-                    }else{
-                        if(i.loadFactor() === 0) {
-                            // Maybe use this elevator, since it's not full yet?
-                            i.goToFloor(0)
+       
+            elevators.map((elevator)=>{
+                elevator.on("idle", function() {
+                    floors.map((floor)=>{
+
+
+                        if(elevator.getPressedFloors().length > 0) {
+                            elevator.goToFloor(elevator.getPressedFloors()[0]);
+                            floor.on('up_button_pressed down_button_pressed', function () {
+                                console.log(elevator.getPressedFloors()[0], floor.floorNum());
+                            });
                         }else{
-                            i.goToFloor(j)
+                            if(elevator.loadFactor() === 0) {
+                                // Maybe use this elevator, since it's not full yet?
+                                elevator.goToFloor(0)
+                            }else{
+                                elevator.goToFloor(floor)
+
+                            }
+
                         }
-                    }
-                }
-            });
-        }
+                    })
+
+                });
+            
+            })
+            
+
     },
         update: function(dt, elevators, floors) {
         }
