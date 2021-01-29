@@ -2,11 +2,9 @@
     init: function(elevators, floors) {
         elevators.map((elevator)=>{
             elevator.on("idle", function() {
-                floors.map((floor)=>{
-                    if(elevator.getPressedFloors().length > 0) {
-                        elevator.goToFloor(elevator.getPressedFloors()[0]);
-                    }
-                })
+                elevator.getPressedFloors().forEach(function(floor) {
+                    elevator.goToFloor(floor);
+                });
             });
         })
     },
