@@ -3,11 +3,16 @@
         elevators.map((elevator)=>{
             elevator.on("idle", function() {
                 elevator.getPressedFloors().forEach(function(floor) {
-                    elevator.goToFloor(floor);
+                    if(elevator.currentFloor() === floor) {
+                        elevator.stop();
+                    }else{
+                        elevator.goToFloor(floor);
+                    }
                 });
             });
         })
     },
     update: function(dt, elevators, floors) {
+        
     }
 }
