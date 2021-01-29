@@ -9,10 +9,6 @@
                 }else{
                     if(elevator.loadFactor() === 0) {
                         elevator.goToFloor(0);
-                    }else{
-                        elevator.on("floor_button_pressed", function(floorNum) {
-                            elevator.goToFloor(floorNum);
-                        })
                     }
                 }
             });
