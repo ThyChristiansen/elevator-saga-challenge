@@ -2,17 +2,23 @@
     init: function(elevators, floors) {
         elevators.map((elevator)=>{
             elevator.on("idle", function() {
-                elevator.getPressedFloors().forEach(function(floor) {
-                    if(elevator.currentFloor() === floor) {
-                        elevator.stop();
-                    }else{
+                if(elevator.getPressedFloors().length > 0) {
+                    elevator.getPressedFloors().forEach(function(floor) {
                         elevator.goToFloor(floor);
+                    });
+                }else{
+                    if(elevator.loadFactor() === 0) {
+                        elevator.goToFloor(0);
+                    }else{
+                        elevator.on("floor_button_pressed", function(floorNum) {
+                            elevator.goToFloor(floorNum);
+                        })
                     }
-                });
+                }
             });
         })
     },
-    update: function(dt, elevators, floors) {
-        
-    }
+        update: function(dt, elevators, floors) {
+
+        }
 }
