@@ -32,7 +32,7 @@
 }
 
 
-
+//----------Second solution----------
 
 {
     init: function(elevators, floors) {
@@ -40,16 +40,12 @@
         let passingFloor=[]
         let matchingPassAndPressFloor= []
         let upOrDown;
-        let floorPass;
-        let floorPress;
 
         let createWaitList = (floor, elevator, ) =>{
             floor.on('up_button_pressed down_button_pressed', function () {
                 pressFromFloor.push(floor.floorNum());
-                floorPress= floor.floorNum()
                 elevator.on("passing_floor", function(floorNum, direction) {
                     passingFloor.push(floorNum)
-                    floorPass = floorNum
                     upOrDown = direction
                     //find the matching passing floor and the floor in waitlist
                     matchingPassAndPressFloor = passingFloor.filter(element => pressFromFloor.includes(element));
@@ -60,29 +56,8 @@
 
         elevators.forEach((elevator)=>{
             elevator.on("idle", function() {
-                if(elevator.loadFactor() === 0) {  
-                    console.log("ele empty",elevator.loadFactor())
-                    floors.forEach((floor)=>{
-                        createWaitList(floor, elevator)
-                    })
-                    matchingPassAndPressFloor.concat(pressFromFloor)
-                    //delete duplicate
-                    let waitList = [... new Set(matchingPassAndPressFloor)]
-                    if(passingFloor.length > 0 && elevator.loadFactor() === 0 ){
-                        //console.log(elevator.loadFactor())
-                        //console.log("elevator is empty",elevator.loadFactor(),"and passing --> pressFromFloor", waitList.sort((a, b) => a - b))
-                        waitList.map(x => elevator.goToFloor(x))
-                    }else if(passingFloor.length > 0 && pressFromFloor){
-                        pressFromFloor.map(x => elevator.goToFloor(x))
-                    }
-                    else{
-                        pressFromFloor.sort((a, b) => a - b).map(x => elevator.goToFloor(x))
-                    }
-                    pressFromFloor.sort((a, b) => a - b).map(x => elevator.goToFloor(x))
-                    console.log("-------------------------")
-                }
-                else{
-                    console.log("ele NOT empty",elevator.loadFactor())
+                if(elevator.loadFactor() > 0) {  
+                    console.log("ele is NOT empty",elevator.loadFactor(), "pressFromFloor.length",pressFromFloor.length)
                     let goToList = [... new Set(elevator.getPressedFloors())];
                     if(elevator.loadFactor() < 1 && pressFromFloor) {
                         floors.forEach((floor)=>{
@@ -91,18 +66,46 @@
                         let combineAllList = matchingPassAndPressFloor.concat(pressFromFloor, goToList)
                         //delete duplicate
                         let  waitList= [... new Set(combineAllList)]
-                        if(upOrDown === "up"  && floorPass === floorPress){
-                            //console.log(upOrDown,goToList.sort((a, b) => a - b))
+                        //console.log("pressFromFloor", [... new Set(pressFromFloor)])
+                        //console.log("passingFloor", [... new Set(passingFloor)])
+                        //console.log("matchingPassAndPressFloor", [... new Set(passingFloor.filter(element => pressFromFloor.includes(element)))])
+                        //console.log("goToList",goToList)
+                        //console.log("waitList",waitList)
+
+                        if(upOrDown === "up" ){
+                            console.log(upOrDown,waitList.sort((a, b) =>  b - a))
+                            goToList.sort((a, b) =>  b - a).forEach(x => elevator.goToFloor(x));
+                        }
+                        else if( upOrDown === "down"){
+                            console.log(upOrDown, waitList.sort((a, b) => a - b))
                             goToList.sort((a, b) => a - b).forEach(x => elevator.goToFloor(x));
-                        }else if( upOrDown === "down" && floorPress === floorPress){
-                            //console.log(upOrDown, goToList.sort((a, b) => b - a))
-                            goToList.sort((a, b) => b - a).forEach(x => elevator.goToFloor(x));
                         }else{
+                            console.log("not go up or down")
                             waitList.forEach(x => elevator.goToFloor(x))
                         }
+                    }
+                    console.log("-------------------------")
+                }
+                //Ele emplty
+                else{
+                    console.log("ele empty",elevator.loadFactor(), "pressFromFloor.length",pressFromFloor.length)
+                    if(pressFromFloor.length > 0) {
+                        floors.forEach((floor)=>{
+                            createWaitList(floor, elevator)
+                        })
+                        let combineAllList = matchingPassAndPressFloor.concat(pressFromFloor)
+                        //delete duplicate
+                        let waitList= [... new Set(combineAllList)]
+                        if(passingFloor.length > 0 && passingFloor.filter(element => pressFromFloor.includes(element))){
+                            console.log("passingFloor is true",passingFloor, waitList)
+                            waitList.map(x => elevator.goToFloor(x))
+                        }else{
+                            console.log("passingFloor is fault",passingFloor)
+                            pressFromFloor.map(x => elevator.goToFloor(x))
+                        }
                     }else{
-                        //console.log("elevator is full and no pressFromFloor --> go to list",goToList)
-                        goToList.forEach(x => elevator.goToFloor(x));
+                        console.log("no one press from floor")
+                        elevator.goToFloor(0)
                     }
                     console.log("-------------------------")
                 }
